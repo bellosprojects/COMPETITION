@@ -1,3 +1,3 @@
 # Maraton de Programacion
 
-## Fase de diseño
+## Fase de pruebas en Discord
