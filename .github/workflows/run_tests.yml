@@ -1,0 +1,49 @@
+name: Ejecutar Pruebas
+on:
+    pull_request_target:
+        branches: [main]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+
+          - name: Checkout del main
+            uses: actions/checkout@v4
+            with:
+                ref: main
+                path: trusted
+
+          - name: Checkout del codigo del PR
+            uses: actions/checkout@v4
+            with:
+                ref: ${{ github.event.pull_request.head.sha }}
+                path: submission
+                sparse-checkout: soluciones
+                
+          - name: Checkout tests privados
+            uses: actions/checkout@v4
+            with:
+                repository: bellosprojects/competition-private-test
+                ref: v1.0
+                path: tests_privados
+                token: ${{secrets.PRIVATE_TESTS_TOKEN }}
+
+          - name: Configurar Python
+            uses: actions/setup-python@v5
+            with:
+                python-version: '3.11'
+
+          - name: Corriendo las pruebas y guardando resultado
+            run: |
+                cd trusted
+                python run_tests.py \
+                  --tests-dir ../tests_privados/test \
+                  --solutions-dir ../submission/soluciones \
+                  --json-out ../resultado.json
+
+          - name: Subir artefacto
+            uses: actions/upload-artifact@v4
+            with:
+                name: test-results
+                path: resultado.json
