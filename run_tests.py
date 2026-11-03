@@ -77,7 +77,7 @@ def evaluate_problem(pid: int, test_dir: Path, solutions_dir: Path) -> dict:
             result['passed'] += 1
         else:
             result['failed'] += 1
-            result['errors'].append(f"{Path(in_path).name}: salida incorrecta")
+            result['errors'].append(f"{Path(in_path).name}: esperado={expected!r} obtenido={normalize(actual_raw)!r}")
 
     if result['total'] > 0:
         result['score'] = round(
