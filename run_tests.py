@@ -30,6 +30,9 @@ def run_case(solution: Path, input_text: str, timeout: int) -> tuple[str, str | 
             timeout=timeout
         )
 
+        if result.returncode != 0:
+            stderr_last = result.stderr.strip().splitlines()[-1] if result.stderr.strip() else "(sin stderr)"
+            return result.stdout, f"exit {result.returncode}: {stderr_last}"
         return result.stdout, None
     except subprocess.TimeoutExpired:
         return "", "timeout"
