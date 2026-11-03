@@ -1,33 +1,48 @@
 name: Notificar Resultados a Discord
 on:
-    workflow_run:
-        workflows: ["Ejecutar Pruebas"]
-        types: [completed]
+  workflow_run:
+    workflows: ["Ejecutar Pruebas"]
+    types: [completed]
 
 jobs:
-    notify:
-        runs-on: ubuntu-latest
-        permissions:
-            actions: read
-        if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
-        steps:
-            - name: Descargar artefacto
-              uses: actions/download-artifact@v4
-              with:
-                name: test-results
-                run-id: ${{ github.event.workflow_run.id }}
-                github-token: ${{ secrets.GITHUB_TOKEN }}
+  notify:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
+    steps:
+      - name: Descargar artefacto
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Leer resultado y preparar mensaje
-              id: leer
-              run: |
-                CONTENIDO=$(cat resultado.json)
-                echo "resultado=$CONTENIDO" >> $GITHUB_OUTPUT
+      - name: Leer resultado y preparar mensaje
+        id: leer
+        run: |
+          python - <<'PY' >> $GITHUB_OUTPUT
+          import json
+          with open("resultado.json") as f:
+              data = json.load(f)
+          lineas = []
+          for p in data["problems"]:
+              icono = "✅" if p["failed"] == 0 and p["total"] > 0 else "❌"
+              lineas.append(
+                  f"{icono} **P{p['id']}**: {p['passed']}/{p['total']} "
+                  f"({p['score']}/{p['weight']} pts)"
+              )
+          resumen = "\n".join(lineas)
+          resumen += f"\n\n**Total: {data['total_score']} / {data['max_score']} pts**"
+          print("resultado<<EOF")
+          print(resumen)
+          print("EOF")
+          PY
 
-            - name: Enviar embed a Discord
-              uses: tsickert/discord-webhook@v7.0.0
-              with:
-                webhook-url: ${{ secrets.DISCORD_WEBHOOK_RESULTS }}
-                embed-title: "Resultado de la evaluacion"
-                embed-description: "Participante: `${{ github.event.workflow_run.head_repository.owner.login }}` (${{ github.event.workflow_run.head_branch }})\nResultado: `${{ steps.leer.outputs.resultado }}`"
-                embed-color: ${{ github.event.workflow_run.conclusion == 'success' && '3066993' || '15158332' }}
+      - name: Enviar embed a Discord
+        uses: tsickert/discord-webhook@v7.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_RESULTS }}
+          embed-title: "Resultado de la evaluacion"
+          embed-description: "Participante: `${{ github.event.workflow_run.head_repository.owner.login }}` (${{ github.event.workflow_run.head_branch }})\n\n${{ steps.leer.outputs.resultado }}"
+          embed-color: ${{ github.event.workflow_run.conclusion == 'success' && '3066993' || '15158332' }}
