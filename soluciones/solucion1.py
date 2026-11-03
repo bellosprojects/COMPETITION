@@ -1,4 +1,4 @@
-# Javier Garcia
+# Javier Garcia si
 # Recuerda no usar librerias externas
 # Usa get_data() para leer los datos separados por espacios
 # Usa print() para devolver los resultados
