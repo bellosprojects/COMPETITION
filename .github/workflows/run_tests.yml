@@ -39,7 +39,7 @@ jobs:
             run: |
                 cd trusted
                 python run_tests.py \
-                  --tests-dir ../tests_privados/test \
+                  --tests-dir ../tests_privados/tests \
                   --solutions-dir ../submission/soluciones \
                   --json-out ../resultado.json
 
