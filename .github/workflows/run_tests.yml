@@ -30,6 +30,17 @@ jobs:
                 path: tests_privados
                 token: ${{secrets.PRIVATE_TESTS_TOKEN }}
 
+          - name: Diagnóstico de soluciones
+            run: |
+              echo "=== Contenido de submission/ ==="
+              ls -la submission/ || echo "no existe submission"
+              echo ""
+              echo "=== Contenido de submission/soluciones/ ==="
+              ls -la submission/soluciones/ || echo "no existe submission/soluciones"
+              echo ""
+              echo "=== Primera solución (primeras 20 líneas) ==="
+              head -20 submission/soluciones/solucion1.py || echo "no existe solucion1.py"
+
           - name: Configurar Python
             uses: actions/setup-python@v5
             with:
