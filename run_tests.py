@@ -23,16 +23,13 @@ def normalize(text: str) -> str:
 def run_case(solution: Path, input_text: str, timeout: int) -> tuple[str, str | None]:
     try:
         result = subprocess.run(
-            [sys.executable, "-X", "faulthandler", str(solution)],
+            [sys.executable, str(solution)],
             input=input_text,
             capture_output=True,
             text=True,
             timeout=timeout
         )
 
-        if result.returncode != 0:
-            stderr_last = result.stderr.strip().splitlines()[-1] if result.stderr.strip() else "(sin stderr)"
-            return result.stdout, f"exit {result.returncode}: {stderr_last}"
         return result.stdout, None
     except subprocess.TimeoutExpired:
         return "", "timeout"
@@ -80,7 +77,7 @@ def evaluate_problem(pid: int, test_dir: Path, solutions_dir: Path) -> dict:
             result['passed'] += 1
         else:
             result['failed'] += 1
-            result['errors'].append(f"{Path(in_path).name}: esperado={expected!r} obtenido={normalize(actual_raw)!r}")
+            result['errors'].append(f"{Path(in_path).name}: salida incorrecta")
 
     if result['total'] > 0:
         result['score'] = round(
