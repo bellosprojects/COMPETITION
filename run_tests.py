@@ -23,7 +23,7 @@ def normalize(text: str) -> str:
 def run_case(solution: Path, input_text: str, timeout: int) -> tuple[str, str | None]:
     try:
         result = subprocess.run(
-            [sys.executable, str(solution)],
+            [sys.executable, "-X", "faulthandler", str(solution)],
             input=input_text,
             capture_output=True,
             text=True,
