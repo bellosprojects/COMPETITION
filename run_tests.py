@@ -65,9 +65,9 @@ def evaluate_problem(pid: int, test_dir: Path, solutions_dir: Path) -> dict:
             result['failed'] += 1
             continue
 
-        expected = normalize(out_path.read_text())
+        expected = normalize(out_path.read_text(encoding="utf-8-sig"))
         actual_raw, error = run_case(
-            solution, Path(in_path).read_text(), config['timeout']
+            solution, Path(in_path).read_text(encoding="utf-8-sig"), config['timeout']
         )
 
         if error:
