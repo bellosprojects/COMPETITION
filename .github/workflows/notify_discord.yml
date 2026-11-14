@@ -5,12 +5,22 @@ on:
     types: [completed]
 
 jobs:
-  notify:
+  update-score:
     runs-on: ubuntu-latest
     permissions:
       actions: read
-    if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
+      contents: write
+      pages: write
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      notify: ${{ steps.score.outputs.notify }}
+      message: ${{ steps.score.outputs.message }}
     steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
       - name: Descargar artefacto
         uses: actions/download-artifact@v4
         with:
@@ -18,31 +28,60 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Leer resultado y preparar mensaje
-        id: leer
+      - name: Actualizar marcador
+        id: score
+        env:
+          PARTICIPANT_LOGIN: ${{ github.event.workflow_run.head_repository.owner.login }}
+          PARTICIPANT_AVATAR: https://github.com/${{ github.event.workflow_run.head_repository.owner.login }}.png?size=160
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_NUMBER: ${{ github.event.workflow_run.run_number }}
+          REPOSITORY: ${{ github.repository }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          SCORE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python - <<'PY' >> $GITHUB_OUTPUT
-          import json
-          with open("resultado.json") as f:
-              data = json.load(f)
-          lineas = []
-          for p in data["problems"]:
-              icono = "✅" if p["failed"] == 0 and p["total"] > 0 else "❌"
-              lineas.append(
-                  f"{icono} **P{p['id']}**: {p['passed']}/{p['total']} "
-                  f"({p['score']}/{p['weight']} pts)"
-              )
-          resumen = "\n".join(lineas)
-          resumen += f"\n\n**Total: {data['total_score']} / {data['max_score']} pts**"
-          print("resultado<<EOF")
-          print(resumen)
-          print("EOF")
-          PY
+          python update_score.py \
+            --result resultado.json \
+            --login "$PARTICIPANT_LOGIN" \
+            --avatar "$PARTICIPANT_AVATAR" \
+            --run-id "$RUN_ID" \
+            --run-number "$RUN_NUMBER" \
+            --repository "$REPOSITORY" \
+            --branch "$DEFAULT_BRANCH" \
+            --token "$SCORE_TOKEN" \
+            --pages-score docs/score.json \
+            --github-output "$GITHUB_OUTPUT"
 
-      - name: Enviar embed a Discord
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Preparar sitio
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  publish-pages:
+    needs: update-score
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages-${{ github.repository }}
+      cancel-in-progress: false
+    steps:
+      - name: Publicar GitHub Pages
+        uses: actions/deploy-pages@v4
+
+  notify-discord:
+    needs: update-score
+    runs-on: ubuntu-latest
+    permissions: {}
+    if: ${{ needs.update-score.outputs.notify == 'true' }}
+    steps:
+      - name: Notificar avances a Discord
         uses: tsickert/discord-webhook@v7.0.0
         with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK_RESULTS }}
-          embed-title: "Resultado de la evaluacion"
-          embed-description: "Participante: `${{ github.event.workflow_run.head_repository.owner.login }}` (${{ github.event.workflow_run.head_branch }})\n\n${{ steps.leer.outputs.resultado }}"
-          embed-color: ${{ github.event.workflow_run.conclusion == 'success' && '3066993' || '15158332' }}
+          embed-title: "Avances de la competencia"
+          embed-description: ${{ needs.update-score.outputs.message }}
+          embed-color: "3066993"

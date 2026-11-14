@@ -20,15 +20,19 @@ PROBLEMS = {
 def normalize(text: str) -> str:
     return "\n".join(line.rstrip() for line in text.strip().splitlines())
 
-def run_case(solution: Path, input_text: str, timeout: int) -> tuple[str, str | None]:
+def run_case_cmd(cmd: list[str], input_text: str, timeout: int) -> tuple[str, str | None]:
     try:
         result = subprocess.run(
-            [sys.executable, str(solution)],
+            cmd,
             input=input_text,
             capture_output=True,
             text=True,
             timeout=timeout
         )
+
+        if result.returncode != 0:
+            stderr_last = result.stderr.strip().splitlines()[-1] if result.stderr.strip() else "(sin stderr)"
+            return result.stdout, f"exit {result.returncode}: {stderr_last}"
 
         return result.stdout, None
     except subprocess.TimeoutExpired:
@@ -36,9 +40,39 @@ def run_case(solution: Path, input_text: str, timeout: int) -> tuple[str, str | 
     except Exception as e:
         return "", f"crash: {type(e).__name__}"
 
+def find_solution(solutions_dir: Path, pid: int) -> Path | None:
+    for ext in (".py", ".cpp", ".cc", ".cxx"):
+        candidate = solutions_dir / f"solucion{pid}{ext}"
+        if candidate.exists():
+            return candidate
+
+    return None
+
+def prepare_solution(solution: Path) -> tuple[list[str], str | None]:
+    suffix = solution.suffix.lower()
+
+    if suffix == ".py":
+        return [sys.executable, "-X", "faulthandler", str(solution)], None
+
+    if suffix in (".cpp", ".cc", ".cxx"):
+        binary = solution.with_suffix("")
+        try:
+            cr = subprocess.run(
+                ["g++", "-02", "-std=c++17", "-o", str(binary), str(solution)],
+                capture_output=True, text=True, timeout=30
+            )
+        except subprocess.TimeoutExpired:
+            return [], "compilacion timeout (>30s)"
+
+        if cr.returncode != 0:
+            last = (cr.stderr.strip().splitlines() or ["(sin stderr)"])[-1]
+            return [], f"Compilacion fallo: {last}"
+        return [str(binary)], None
+
+    return [], f"Extension no soportada: {suffix}"
+
 def evaluate_problem(pid: int, test_dir: Path, solutions_dir: Path) -> dict:
     config = PROBLEMS[pid]
-    solution = solutions_dir / f"solucion{pid}.py"
     case_dir = test_dir / f"p{pid}"
 
     result = {
@@ -51,12 +85,21 @@ def evaluate_problem(pid: int, test_dir: Path, solutions_dir: Path) -> dict:
         "errors": [],
     }
 
-    if not solution.exists():
-        result['errors'].append(f"Archivo no encontrado: solucion{pid}.py")
-        return result
-
     input_files = sorted(glob.glob(str(case_dir / "*.in")))
     result['total'] = len(input_files)
+
+    solution = find_solution(solutions_dir=solutions_dir, pid=pid)
+    if solution is None:
+        result['failed'] = result['total']
+        result['errors'].append(f"Archivo no encontrado: solucion{pid}.(py|cpp)")
+        return result
+
+    cmd, prep_error = prepare_solution(solution)
+
+    if prep_error:
+        result['failed'] = result['total']
+        result['errors'].append(prep_error)
+        return result
 
     for in_path in input_files:
         out_path = Path(in_path).with_suffix(".out")
@@ -66,8 +109,8 @@ def evaluate_problem(pid: int, test_dir: Path, solutions_dir: Path) -> dict:
             continue
 
         expected = normalize(out_path.read_text(encoding="utf-8-sig"))
-        actual_raw, error = run_case(
-            solution, Path(in_path).read_text(encoding="utf-8-sig"), config['timeout']
+        actual_raw, error = run_case_cmd(
+            cmd, Path(in_path).read_text(encoding="utf-8-sig"), config['timeout']
         )
 
         if error:

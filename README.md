@@ -4,18 +4,14 @@
 
 ## Requisitos previos
 
-* Tener Python3 instalado 
+* Tener Python3 o un compilador C++ instalado
 * Tener una cuenta de GitHub
 * Tener Git instalado
 * Un editor de codigo (VSCode de preferencia)
-* Pylance (extension de vscode) u otro IntelliceSence
 
 ## Fechas Importantes
-*   **Inicio:** Sin confirmar
-*   **Cierre de envíos:** Sin confirmar
+*   **Inicio:** Jueves 19/11/26 5:00pm
 *   **Anuncio de resultados:** En el canal `#results` de nuestro Discord.
-
-> **Importante:** Solo se evaluarán las soluciones cuyo **Pull Request esté abierto antes de la fecha y hora de cierre**. Los commits posteriores no se tendrán en cuenta.
 
 ## ¿Cómo participar? (Paso a Paso)
 
@@ -28,7 +24,7 @@ Abre tu terminal y ejecuta:
 git clone https://github.com/TU_USUARIO/competition.git
 cd competition
 ```
-Implementa tu solución en los archivos que se indican en `INSTRUCTIONS.md`. Usa las plantillas de la carpeta `soluciones/` como punto de partida; **no cambies los nombres de los archivos**.
+Implementa tu solución en los archivos que se indican en `statements.md`. Usa las plantillas de la carpeta `soluciones/` como punto de partida; **no cambies los nombres de los archivos**.
 
 ### 3. Crea una rama para tu solución
 ```bash
@@ -52,7 +48,10 @@ Ve a la página de tu Fork en GitHub. Verás un botón que dice **"Compare & pul
 No hace falta que abras otro PR. Simplemente haz nuevos `commit` y `push` a la misma rama (`solucion-tu-usuario`) en tu Fork. El Pull Request que ya abriste se actualizará automáticamente con los nuevos cambios.
 
 ## ¿Cómo se evalúa mi solución?
-Al abrir o actualizar tu PR, un sistema automático ejecutará una serie de pruebas sobre tu código. **No podrás ver los casos de prueba**, ya que son privados para garantizar una evaluación justa. El resultado (puntuación y casos superados) se publicará en el canal `#results` de Discord.
+Al abrir o actualizar tu PR, un sistema automático ejecutará una serie de pruebas sobre tu código. **No podrás ver los casos de prueba**, ya que son privados para garantizar una evaluación justa. El tablero mostrará tu puntuación y progreso; Discord solo notificará ejercicios resueltos y avances de posición en el canal `#results`.
+
+## Tablero en vivo
+La carrera de participantes está disponible en [el tablero de la competencia](https://bellosprojects.github.io/COMPETITION/).
 
 ## Preguntas Frecuentes
 *   **¿Puedo usar librerías externas?** No, salvo que se indique lo contrario en `statements.md`. El entorno de evaluación usa la librería estándar.
