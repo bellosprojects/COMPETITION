@@ -1,5 +1,59 @@
 {
-  "updated_at": null,
-  "participants": [],
+  "updated_at": "2026-11-14T23:16:32.590187+00:00",
+  "participants": [
+    {
+      "login": "javigarciaar",
+      "avatar_url": "https://github.com/javigarciaar.png?size=160",
+      "score": 1.6667,
+      "max_score": 20,
+      "solved": [],
+      "problems": [
+        {
+          "id": 1,
+          "passed": 5,
+          "failed": 4,
+          "total": 9,
+          "score": 1.6667,
+          "weight": 3
+        },
+        {
+          "id": 2,
+          "passed": 0,
+          "failed": 9,
+          "total": 9,
+          "score": 0.0,
+          "weight": 4
+        },
+        {
+          "id": 3,
+          "passed": 0,
+          "failed": 11,
+          "total": 11,
+          "score": 0.0,
+          "weight": 3
+        },
+        {
+          "id": 4,
+          "passed": 0,
+          "failed": 7,
+          "total": 7,
+          "score": 0.0,
+          "weight": 4
+        },
+        {
+          "id": 5,
+          "passed": 0,
+          "failed": 7,
+          "total": 7,
+          "score": 0.0,
+          "weight": 6
+        }
+      ],
+      "run_id": "41761714089",
+      "run_number": 10,
+      "updated_at": "2026-11-14T23:16:32.590187+00:00",
+      "rank": 1
+    }
+  ],
   "events": []
 }
