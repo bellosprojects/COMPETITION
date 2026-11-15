@@ -1,174 +1,727 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#123c24">
-  <title>Carrera de la competencia</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: #10251b;
-      color: #f3f8f3;
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080a0d">
+<title>The Competition</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #080a0d;
+    --panel: #12171d;
+    --line: #242c36;
+    --text: #eef3f8;
+    --muted: #8b9aab;
+    --accent: #ff4b2b;
+    --gold: #ffc233;
+    --mint: #6ef2a0;
+    --ice: #7fe7ff;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1000px 520px at 50% -12%, #1b2532 0%, transparent 62%),
+      radial-gradient(820px 420px at 92% -6%, #2a1712 0%, transparent 58%),
+      var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    width: min(1180px, 94vw);
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3rem) 0 4rem;
+  }
+
+  /* ---------- Cabecera ---------- */
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .brand { display: flex; align-items: center; gap: .95rem; }
+
+  .flag {
+    flex: none;
+    width: 26px;
+    height: 42px;
+    border-radius: 3px;
+    background-image: repeating-conic-gradient(#e9eef5 0 25%, #0a0c0f 0 50%);
+    background-size: 13px 13px;
+    box-shadow: 0 0 0 1px #ffffff26, 0 12px 26px -10px #000;
+    transform: skewY(-8deg);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5.4vw, 3.4rem);
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -.045em;
+    line-height: .95;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #ffffff 28%, #94a8bd 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  header p { margin: .55rem 0 0; color: var(--muted); font-size: .92rem; }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .5rem .85rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #ffffff07;
+    color: var(--muted);
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .status .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mint);
+    animation: live 1.9s ease-out infinite;
+  }
+
+  @keyframes live {
+    0%   { box-shadow: 0 0 0 0 #6ef2a066; }
+    70%  { box-shadow: 0 0 0 9px #6ef2a000; }
+    100% { box-shadow: 0 0 0 0 #6ef2a000; }
+  }
+
+  .status.is-error { color: #ffb4a5; border-color: #4a2620; background: #2a1410; }
+  .status.is-error .dot { background: var(--accent); animation: none; }
+
+  /* ---------- Pista ---------- */
+  .track {
+    position: relative;
+    margin-top: 1.5rem;
+    border: 1px solid #2b3440;
+    border-radius: 16px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #161c24 0%, #0c1015 100%);
+    box-shadow:
+      0 40px 80px -34px #000,
+      inset 0 1px 0 #ffffff10;
+  }
+
+  /* asfalto en movimiento (sensación de velocidad) */
+  .track::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(90deg, #ffffff0d 0 2px, transparent 2px 16px);
+    animation: asphalt .5s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes asphalt { to { background-position: -16px 0; } }
+
+  /* línea de meta a cuadros */
+  .track::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    z-index: 4;
+    background-image: repeating-conic-gradient(#e9eef5 0 25%, #0a0c0f 0 50%);
+    background-size: 16px 16px;
+    opacity: .9;
+    box-shadow: -14px 0 28px -10px #000;
+    pointer-events: none;
+  }
+
+  .lane {
+    position: relative;
+    height: 118px;
+    margin-right: 22px;
+    border-bottom: 1px dashed #ffffff1c;
+  }
+
+  .lane:last-child { border-bottom: 0; }
+
+  /* estela de progreso */
+  .lane::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: var(--progress, 0%);
+    height: 2px;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, #a8bdd2);
+    opacity: .2;
+    transition: width 1.1s cubic-bezier(.2, .8, .25, 1);
+  }
+
+  /* ---------- Dorsal ---------- */
+  .rank {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 .35rem;
+    border: 1px solid #ffffff1f;
+    border-radius: 9px;
+    background: #ffffff09;
+    color: #cfdae6;
+    font: 800 .9rem/1 ui-monospace, "SF Mono", Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lane.is-leader .rank {
+    color: #14100a;
+    border-color: var(--gold);
+    background: linear-gradient(180deg, #ffd166, #eda200);
+    box-shadow: 0 0 20px -4px #ffb70399;
+  }
+
+  /* ---------- Corredor ---------- */
+  .runner {
+    position: absolute;
+    z-index: 2;
+    top: 12px;
+    left: clamp(4rem, var(--progress, 0%), calc(100% - 4rem));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .3rem;
+    width: max-content;
+    transform: translateX(-50%);
+    transition: left 1.1s cubic-bezier(.2, .8, .25, 1);
+    will-change: left;
+  }
+
+  .name {
+    max-width: 7.5rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    color: #eaf1f8;
+    text-shadow: 0 2px 8px #000;
+  }
+
+  .sprite {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+  }
+
+  .shadow {
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    width: 46px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, #000000cc, transparent);
+    animation: shadow-beat .56s ease-in-out infinite;
+  }
+
+  @keyframes shadow-beat {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: .7; }
+    50%      { transform: translateX(-50%) scale(.8); opacity: .38; }
+  }
+
+  /* imágenes fantasma = estela de velocidad */
+  .ghost {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 50%;
+    background: var(--avatar, none) center / cover no-repeat, #1a232c;
+    filter: blur(2px);
+    opacity: 0;
+    animation: ghost-trail 1.2s linear infinite;
+  }
+
+  .ghost.g2 { animation-delay: -.6s; }
+
+  @keyframes ghost-trail {
+    0%   { opacity: .34; transform: translateX(0) scale(.95); }
+    100% { opacity: 0;   transform: translateX(-38px) scale(.78); }
+  }
+
+  .avatar {
+    position: relative;
+    z-index: 2;
+    width: 56px;
+    height: 56px;
+    border: 2px solid #ffffffd9;
+    border-radius: 50%;
+    background: #1a232c;
+    object-fit: cover;
+    box-shadow: 0 8px 16px -6px #000c;
+    animation: stride .56s ease-in-out infinite;
+    transform-origin: 50% 88%;
+  }
+
+  @keyframes stride {
+    0%, 100% { transform: translateY(0)    rotate(-8deg); }
+    50%      { transform: translateY(-7px) rotate(4deg); }
+  }
+
+  .lane.is-leader .avatar {
+    border-color: var(--gold);
+    box-shadow:
+      0 0 0 3px #ffc2332e,
+      0 0 26px -2px #ffb703a8,
+      0 8px 16px -6px #000c;
+  }
+
+  /* polvo de los talones */
+  .dust {
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    z-index: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #b9c7d6;
+    filter: blur(4px);
+    opacity: 0;
+    animation: dust-puff 1.2s ease-out infinite;
+  }
+
+  .dust.d2 { animation-delay: -.4s; }
+  .dust.d3 { animation-delay: -.8s; }
+
+  @keyframes dust-puff {
+    0%   { opacity: .35; transform: translate(-50%, 4px) scale(.35); }
+    100% { opacity: 0;   transform: translate(-190%, -12px) scale(1.5); }
+  }
+
+  .score {
+    font: 700 .72rem/1 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: .05em;
+    color: #9db0c4;
+    text-shadow: 0 1px 5px #000;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Efectos de eventos ---------- */
+  .lane.overtaking::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, transparent, var(--ice), transparent);
+    animation: streak .9s ease-out both;
+    pointer-events: none;
+  }
+
+  @keyframes streak {
+    0%   { opacity: 0; transform: translateY(-50%) scaleX(.15); }
+    35%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-50%) scaleX(1); }
+  }
+
+  .lane.solved .sprite::after {
+    content: "";
+    position: absolute;
+    inset: -9px;
+    z-index: 3;
+    border: 2px solid var(--mint);
+    border-radius: 50%;
+    animation: solved-ring .9s ease-out both;
+    pointer-events: none;
+  }
+
+  @keyframes solved-ring {
+    0%   { opacity: 1; transform: scale(.7); }
+    100% { opacity: 0; transform: scale(1.55); }
+  }
+
+  /* ---------- Estado vacío ---------- */
+  .empty {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    gap: .35rem;
+    padding: 3.5rem 1rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: .92rem;
+  }
+
+  .empty strong { color: #cfdae6; font-size: 1rem; }
+
+  /* ---------- Actividad ---------- */
+  .updates { margin-top: 2.5rem; }
+
+  .updates h2 {
+    margin: 0 0 .9rem;
+    font-size: .74rem;
+    font-weight: 800;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .updates ul {
+    display: grid;
+    gap: .5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .updates li {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    padding: .65rem .9rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: linear-gradient(180deg, #141920, #10151b);
+    font-size: .88rem;
+    color: #cfdae6;
+  }
+
+  .updates li.placeholder {
+    justify-content: center;
+    color: var(--muted);
+    border-style: dashed;
+    background: transparent;
+  }
+
+  .tag {
+    flex: none;
+    padding: .2rem .5rem;
+    border-radius: 5px;
+    font: 800 .62rem/1.5 ui-monospace, Menlo, monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .tag.solved { color: var(--mint); background: #12291d; border: 1px solid #2b6344; }
+  .tag.rebase { color: var(--ice);  background: #0f2632; border: 1px solid #1f5570; }
+
+  .updates .text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .updates .text strong { color: #ffffff; font-weight: 700; }
+
+  .updates time {
+    flex: none;
+    color: #6f7f90;
+    font: .74rem ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 640px) {
+    .lane { height: 104px; }
+    .runner { top: 10px; }
+    .sprite { width: 48px; height: 48px; }
+    .avatar { width: 48px; height: 48px; }
+    .name { max-width: 5.5rem; font-size: .76rem; }
+    .rank { min-width: 28px; height: 28px; font-size: .78rem; left: 7px; }
+    .runner { left: clamp(3.1rem, var(--progress, 0%), calc(100% - 3.1rem)); }
+    .updates li { flex-wrap: wrap; }
+    .updates .text { white-space: normal; }
+    .updates time { margin-left: auto; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .001ms !important;
     }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: radial-gradient(ellipse at top, #214a31, #10251b 70%);
-    }
-
-    main { width: min(1100px, 94vw); margin: 0 auto; padding: 3rem 0 4rem; }
-    header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; }
-    h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.4rem); letter-spacing: -.04em; }
-    header p { color: #b7cbbd; margin: .55rem 0 0; }
-    .status { color: #c4d7ca; font-size: .9rem; }
-
-    .track {
-      margin-top: 2rem;
-      padding: .8rem;
-      overflow: hidden;
-      border: 1px solid #76927a;
-      border-radius: 1.2rem;
-      background-color: #28643b;
-      background-image:
-        repeating-linear-gradient(105deg, transparent 0 18px, #ffffff08 19px 21px),
-        repeating-linear-gradient(0deg, #ffffff0a 0 2px, transparent 2px 6px);
-      background-size: 80px 100%, 100% 100%;
-      animation: grass 1.2s linear infinite;
-      box-shadow: 0 1.5rem 4rem #0005;
-    }
-
-    @keyframes grass { to { background-position: 80px 0, 0 0; } }
-
-    .lane {
-      position: relative;
-      height: 112px;
-      border-bottom: 2px dashed #e6f4df55;
-    }
-
-    .lane:last-child { border-bottom: 0; }
-
-    .lane::after {
-      content: "";
-      position: absolute;
-      inset: 0 0 0 auto;
-      width: 5px;
-      border-left: 2px solid #fff9;
-      border-right: 2px solid #fff9;
-      background: #fff3;
-    }
-
-    .runner {
-      position: absolute;
-      z-index: 1;
-      top: 10px;
-      left: clamp(2.5rem, var(--progress), calc(100% - 2.5rem));
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: .35rem;
-      width: max-content;
-      max-width: 9rem;
-      transform: translateX(-50%);
-      transition: left 1.1s cubic-bezier(.2, .8, .25, 1);
-    }
-
-    .name {
-      overflow: hidden;
-      max-width: 9rem;
-      color: white;
-      font-size: .9rem;
-      font-weight: 750;
-      text-overflow: ellipsis;
-      text-shadow: 0 2px 5px #10251b;
-      white-space: nowrap;
-    }
-
-    .avatar {
-      width: 54px;
-      height: 54px;
-      border: 3px solid #fff;
-      border-radius: 50%;
-      background: #dce9df;
-      box-shadow: 0 3px 8px #0006;
-    }
-
-    .score {
-      color: white;
-      font-size: .77rem;
-      font-weight: 700;
-      text-shadow: 0 1px 4px #10251b;
-    }
-
-    .rank {
-      position: absolute;
-      top: 35px;
-      left: 12px;
-      color: #fff9;
-      font-size: 1.25rem;
-      font-weight: 800;
-    }
-
-    .empty {
-      padding: 3rem 1rem;
-      text-align: center;
-      color: #e0eee3;
-    }
-
-    .updates { margin-top: 2rem; }
-    .updates h2 { font-size: 1.15rem; }
-    .updates ul { display: grid; gap: .55rem; padding: 0; list-style: none; }
-    .updates li { color: #d2e3d6; }
-    .updates time { color: #9eb4a3; font-size: .85rem; }
-
-    .overtake { animation: overtake .9s ease-out; }
-    .celebrate .avatar { animation: celebrate .9s ease-in-out; }
-    @keyframes overtake { 50% { filter: drop-shadow(0 0 13px #ffe46d); } }
-    @keyframes celebrate { 25% { transform: translateY(-13px) rotate(-8deg) scale(1.12); } 55% { transform: translateY(0) rotate(8deg); } }
-
-    @media (max-width: 600px) {
-      main { padding-top: 2rem; }
-      .lane { height: 104px; }
-      .runner { max-width: 7rem; }
-      .name { max-width: 7rem; font-size: .8rem; }
-      .rank { left: 8px; }
-      .avatar { width: 48px; height: 48px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
   <main>
     <header>
-      <div>
-        <h1>🏁 Carrera de la competencia</h1>
-        <p>Las soluciones avanzan con cada ejercicio resuelto.</p>
+      <div class="brand">
+        <span class="flag" aria-hidden="true"></span>
+        <div>
+          <h1>The Competition</h1>
+          <p>Cada problema resuelto acerca a la meta. Cada posición cuenta.</p>
+        </div>
       </div>
-      <div class="status" id="status" role="status" aria-live="polite">Conectando con el marcador…</div>
+      <div class="status" id="status" role="status" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="status-text">Sincronizando…</span>
+      </div>
     </header>
+
     <section class="track" id="track" aria-label="Pista y posiciones de los participantes">
-      <div class="empty">Todavía no hay participantes en la pista.</div>
+      <div class="empty">
+        <strong>Pista vacía</strong>
+        <span>Todavía no hay participantes en la carrera.</span>
+      </div>
     </section>
+
     <section class="updates" aria-labelledby="updates-title">
-      <h2 id="updates-title">Últimos avances</h2>
-      <ul id="updates"><li>Esperando resultados…</li></ul>
+      <h2 id="updates-title">Actividad en pista</h2>
+      <ul id="updates">
+        <li class="placeholder">Esperando resultados…</li>
+      </ul>
     </section>
   </main>
+
   <script>
     const SCORE_URL = "score.json";
     const POLL_INTERVAL = 2000;
-    const track = document.querySelector("#track");
-    const status = document.querySelector("#status");
-    const updates = document.querySelector("#updates");
+
+    const trackEl = document.querySelector("#track");
+    const statusEl = document.querySelector("#status");
+    const statusTextEl = document.querySelector("#status-text");
+    const updatesEl = document.querySelector("#updates");
+
+    /** login -> { lane, rank, runner, name, avatar, score } */
+    const runners = new Map();
     let seenEvents = null;
-    let latestEvents = [];
+
+    const formatPoints = value => {
+      const n = Number(value) || 0;
+      return Number.isInteger(n) ? String(n) : n.toFixed(1);
+    };
+
+    const formatTime = value => {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime())
+        ? ""
+        : date.toLocaleTimeString("es", { hour12: false });
+    };
+
+    /* ---------- Construcción de la pista ---------- */
+
+    function createEntry(participant) {
+      const lane = document.createElement("div");
+      lane.className = "lane";
+      lane.dataset.login = participant.login;
+
+      const rank = document.createElement("span");
+      rank.className = "rank";
+
+      const runner = document.createElement("div");
+      runner.className = "runner";
+
+      const name = document.createElement("span");
+      name.className = "name";
+      name.textContent = participant.login;
+
+      const sprite = document.createElement("div");
+      sprite.className = "sprite";
+
+      const shadow = document.createElement("span");
+      shadow.className = "shadow";
+
+      const ghosts = ["g1", "g2"].map(suffix => {
+        const ghost = document.createElement("span");
+        ghost.className = `ghost ${suffix}`;
+        return ghost;
+      });
+
+      const avatar = document.createElement("img");
+      avatar.className = "avatar";
+      avatar.alt = `Avatar de ${participant.login}`;
+      avatar.loading = "lazy";
+      avatar.decoding = "async";
+      avatar.referrerPolicy = "no-referrer";
+
+      const dust = ["d1", "d2", "d3"].map(suffix => {
+        const puff = document.createElement("span");
+        puff.className = `dust ${suffix}`;
+        return puff;
+      });
+
+      sprite.append(shadow, ...ghosts, avatar, ...dust);
+
+      const score = document.createElement("span");
+      score.className = "score";
+
+      runner.append(name, sprite, score);
+      lane.append(rank, runner);
+
+      return { lane, rank, runner, name, avatar, score };
+    }
+
+    function applyData(entry, participant) {
+      entry.rank.textContent = `#${participant.rank}`;
+      entry.name.textContent = participant.login;
+      entry.name.title = participant.login;
+      entry.score.textContent =
+        `${formatPoints(participant.score)} / ${formatPoints(participant.max_score)}`;
+
+      const ratio = participant.max_score > 0
+        ? Math.max(0, Math.min(1, participant.score / participant.max_score))
+        : 0;
+
+      // Una sola variable controla la posición del corredor y su estela.
+      entry.lane.style.setProperty("--progress", `${(ratio * 100).toFixed(2)}%`);
+      entry.lane.classList.toggle("is-leader", participant.rank === 1);
+
+      const url = participant.avatar_url || "";
+      if (url && entry.avatar.dataset.url !== url) {
+        entry.avatar.dataset.url = url;
+        entry.avatar.src = url;
+        entry.lane.style.setProperty("--avatar", `url("${url}")`);
+      }
+    }
+
+    /* ---------- Pintado ---------- */
+
+    function renderTrack(participants) {
+      if (!participants.length) {
+        runners.clear();
+        trackEl.replaceChildren();
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        const title = document.createElement("strong");
+        title.textContent = "Pista vacía";
+        const hint = document.createElement("span");
+        hint.textContent = "Todavía no hay participantes en la carrera.";
+        empty.append(title, hint);
+        trackEl.append(empty);
+        return;
+      }
+
+      const empty = trackEl.querySelector(".empty");
+      if (empty) empty.remove();
+
+      const alive = new Set(participants.map(p => p.login));
+      for (const [login, entry] of runners) {
+        if (!alive.has(login)) {
+          entry.lane.remove();
+          runners.delete(login);
+        }
+      }
+
+      for (const participant of participants) {
+        let entry = runners.get(participant.login);
+        if (!entry) {
+          entry = createEntry(participant);
+          runners.set(participant.login, entry);
+        }
+        applyData(entry, participant);
+      }
+
+      // Reordena solo si el orden real cambió (evita reiniciar animaciones).
+      const current = Array.from(trackEl.children, el => el.dataset.login).join("|");
+      const target = participants.map(p => p.login).join("|");
+      if (current !== target) {
+        for (const participant of participants) {
+          trackEl.append(runners.get(participant.login).lane);
+        }
+      }
+    }
+
+    function describeEvent(event) {
+      if (event.type === "solved") {
+        return {
+          cls: "solved",
+          tag: "Resuelto",
+          detail: ` resolvió P${event.problem}`,
+        };
+      }
+      const overtaken = Array.isArray(event.overtaken) && event.overtaken.length
+        ? ` · superó a ${event.overtaken.join(", ")}`
+        : "";
+      return {
+        cls: "rebase",
+        tag: "Adelanto",
+        detail: ` avanzó al puesto #${event.to_rank}${overtaken}`,
+      };
+    }
+
+    function renderUpdates(events) {
+      const latest = events.slice(-8).reverse();
+      updatesEl.replaceChildren();
+
+      if (!latest.length) {
+        const item = document.createElement("li");
+        item.className = "placeholder";
+        item.textContent = "Todavía no hay movimientos registrados.";
+        updatesEl.append(item);
+        return;
+      }
+
+      for (const event of latest) {
+        const { cls, tag, detail } = describeEvent(event);
+
+        const item = document.createElement("li");
+
+        const badge = document.createElement("span");
+        badge.className = `tag ${cls}`;
+        badge.textContent = tag;
+
+        const text = document.createElement("span");
+        text.className = "text";
+        const who = document.createElement("strong");
+        who.textContent = event.login;
+        text.append(who, document.createTextNode(detail));
+
+        const time = document.createElement("time");
+        time.dateTime = event.created_at;
+        time.textContent = formatTime(event.created_at);
+        time.title = new Date(event.created_at).toLocaleString("es");
+
+        item.append(badge, text, time);
+        updatesEl.append(item);
+      }
+    }
+
+    function playEventEffects(events) {
+      if (!seenEvents) return;
+      for (const event of events) {
+        if (seenEvents.has(event.id)) continue;
+        const entry = runners.get(event.login);
+        if (!entry) continue;
+
+        const className = event.type === "solved" ? "solved" : "overtaking";
+        entry.lane.classList.add(className);
+        setTimeout(() => entry.lane.classList.remove(className), 1000);
+      }
+    }
 
     function render(data) {
       if (!Array.isArray(data.participants) || !Array.isArray(data.events)) {
@@ -176,91 +729,29 @@
       }
 
       const participants = [...data.participants].sort((a, b) => a.rank - b.rank);
-      track.replaceChildren();
-      if (!participants.length) {
-        const empty = document.createElement("div");
-        empty.className = "empty";
-        empty.textContent = "Todavía no hay participantes en la pista.";
-        track.append(empty);
-      }
+      renderTrack(participants);
+      renderUpdates(data.events);
+      playEventEffects(data.events);
 
-      for (const participant of participants) {
-        const lane = document.createElement("div");
-        lane.className = "lane";
-        const rank = document.createElement("span");
-        rank.className = "rank";
-        rank.textContent = `#${participant.rank}`;
-
-        const runner = document.createElement("div");
-        runner.className = "runner";
-        const ratio = participant.max_score > 0
-          ? Math.max(0, Math.min(1, participant.score / participant.max_score))
-          : 0;
-        runner.style.setProperty("--progress", `${ratio * 100}%`);
-
-        const name = document.createElement("span");
-        name.className = "name";
-        name.textContent = participant.login;
-        const avatar = document.createElement("img");
-        avatar.className = "avatar";
-        avatar.src = participant.avatar_url;
-        avatar.alt = `Avatar de ${participant.login}`;
-        avatar.loading = "lazy";
-        avatar.referrerPolicy = "no-referrer";
-        const score = document.createElement("span");
-        score.className = "score";
-        score.textContent = `${participant.score} / ${participant.max_score} pts`;
-
-        runner.append(name, avatar, score);
-        lane.append(rank, runner);
-        track.append(lane);
-      }
-
-      latestEvents = data.events.slice(-8).reverse();
-      updates.replaceChildren();
-      if (!latestEvents.length) {
-        const item = document.createElement("li");
-        item.textContent = "Todavía no hay avances registrados.";
-        updates.append(item);
-      }
-      for (const event of latestEvents) {
-        const item = document.createElement("li");
-        const description = event.type === "solved"
-          ? `🎉 ${event.login} resolvió P${event.problem}`
-          : `🏁 ${event.login} avanzó al puesto #${event.to_rank}${
-              event.overtaken?.length ? `, superando a ${event.overtaken.join(", ")}` : ""
-            }`;
-        item.textContent = description;
-        const date = document.createElement("time");
-        date.dateTime = event.created_at;
-        date.textContent = ` · ${new Date(event.created_at).toLocaleString("es")}`;
-        item.append(date);
-        updates.append(item);
-      }
-
-      if (seenEvents !== null) {
-        const newEvents = data.events.filter(event => !seenEvents.has(event.id));
-        for (const event of newEvents) {
-          const index = participants.findIndex(p => p.login === event.login);
-          const runner = track.children[index]?.querySelector(".runner");
-          if (runner) {
-            runner.classList.add(event.type === "solved" ? "celebrate" : "overtake");
-            setTimeout(() => runner.classList.remove("celebrate", "overtake"), 1000);
-          }
-        }
-      }
       seenEvents = new Set(data.events.map(event => event.id));
-      const updated = data.updated_at ? new Date(data.updated_at).toLocaleTimeString("es") : "sin actividad";
-      status.textContent = `Actualizado ${updated} · consulta cada 2 s`;
+
+      const updated = formatTime(data.updated_at);
+      statusTextEl.textContent = updated ? `En vivo · ${updated}` : "En vivo";
+      statusEl.classList.remove("is-error");
+      statusEl.removeAttribute("title");
     }
 
     async function refresh() {
       try {
         const response = await fetch(`${SCORE_URL}?_=${Date.now()}`, { cache: "no-store" });
-        if (!response.ok) throw new Error(`No se pudo leer score.json (${response.status}).`);
+        if (!response.ok) {
+          throw new Error(`No se pudo leer score.json (${response.status}).`);
+        }
         render(await response.json());
       } catch (error) {
-        status.textContent = `Error al actualizar: ${error.message}`;
+        statusEl.classList.add("is-error");
+        statusTextEl.textContent = "Sin conexión";
+        statusEl.title = error.message;
       }
     }
 
