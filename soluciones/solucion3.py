@@ -1,3 +1,8 @@
+def get_data(_=[iter(())]):
+ while 1:
+  try:return next(_[0])
+  except StopIteration:_[0]=iter(input().strip().split())
+
 def calculate(user_px: int, buttons: dict[int, list[int]]):
 
     import math
