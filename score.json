@@ -1,14 +1,15 @@
 {
-  "updated_at": "2026-11-15T02:23:11.709582+00:00",
+  "updated_at": "2026-11-15T02:25:45.185702+00:00",
   "participants": [
     {
       "login": "chichobs",
       "avatar_url": "https://github.com/chichobs.png?size=160",
-      "score": 7.0,
+      "score": 10.0,
       "max_score": 20,
       "solved": [
         1,
-        2
+        2,
+        3
       ],
       "problems": [
         {
@@ -29,10 +30,10 @@
         },
         {
           "id": 3,
-          "passed": 0,
-          "failed": 11,
+          "passed": 11,
+          "failed": 0,
           "total": 11,
-          "score": 0.0,
+          "score": 3.0,
           "weight": 3
         },
         {
@@ -52,9 +53,9 @@
           "weight": 6
         }
       ],
-      "run_id": "43667504873",
-      "run_number": 16,
-      "updated_at": "2026-11-15T02:23:11.709582+00:00",
+      "run_id": "43667711478",
+      "run_number": 17,
+      "updated_at": "2026-11-15T02:25:45.185702+00:00",
       "rank": 1
     },
     {
@@ -167,6 +168,13 @@
         "javigarciaar"
       ],
       "created_at": "2026-11-15T02:23:11.709582+00:00"
+    },
+    {
+      "id": "43667711478:solved:3",
+      "type": "solved",
+      "login": "chichobs",
+      "problem": 3,
+      "created_at": "2026-11-15T02:25:45.185702+00:00"
     }
   ]
 }
