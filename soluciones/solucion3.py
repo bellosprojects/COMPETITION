@@ -1,19 +1,47 @@
-# Recuerda no usar librerias externas
-# Usa get_data() para leer los datos separados por espacios
-# Usa print() para devolver los resultados
-# No imprimas lineas o espacios demas
-
-# Funcion de lectura, NO MODIFICAR
 def get_data(_=[iter(())]):
  while 1:
   try:return next(_[0])
   except StopIteration:_[0]=iter(input().strip().split())
 
+def calculate(user_px: int, buttons: dict[int, list[int]]):
 
+    import math
 
-def main() -> None:
+    min_distance = math.inf
+    best_button = -1
 
-    pass # Tu codigo aqui
+    for bt in buttons:
+
+        for px in buttons[bt]:
+
+            distance = abs(px - user_px)
+
+            if distance < len(buttons[bt]):
+
+                if distance < min_distance:
+                    min_distance = distance
+                    best_button = bt
+
+    return best_button
+
+def main():
+
+    USER_PIXEL = int(get_data())
+    NUM_BUTTONS = int(get_data())
+
+    BUTTONS : dict[int, list[int]] = {}
+
+    for _ in range(NUM_BUTTONS):
+        ID_BUTTON = int(get_data())
+        NUM_PIXELS = int(get_data())
+        pixs = []
+
+        for __ in range(NUM_PIXELS):
+            pixs.append(int(get_data()))
+
+        BUTTONS[ID_BUTTON] = pixs
+
+    print(calculate(user_px=USER_PIXEL, buttons=BUTTONS))
 
 if __name__ == "__main__":
     main()
