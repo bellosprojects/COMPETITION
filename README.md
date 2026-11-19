@@ -10,7 +10,7 @@
 * Un editor de codigo (VSCode de preferencia)
 
 ## Fechas Importantes
-*   **Inicio:** Jueves 19/11/26 5:00pm
+*   **Inicio:** Jueves 19/11/26 5:30pm
 *   **Anuncio de resultados:** En el canal `#results` de nuestro Discord.
 
 ## ¿Cómo participar? (Paso a Paso)
