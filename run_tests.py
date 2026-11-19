@@ -10,11 +10,10 @@ import sys
 from pathlib import Path
 
 PROBLEMS = {
-    1: {"weight": 3, "timeout": 5},
-    2: {"weight": 4, "timeout": 10},
-    3: {"weight": 3, "timeout": 5},
-    4: {"weight": 4, "timeout": 10},
-    5: {"weight": 6, "timeout": 15},
+    1: {"weight": 4, "timeout": 10},
+    2: {"weight": 6, "timeout": 10},
+    3: {"weight": 5, "timeout": 10},
+    4: {"weight": 5, "timeout": 10},
 }
 
 def normalize(text: str) -> str:
